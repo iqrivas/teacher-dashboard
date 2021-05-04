@@ -56,6 +56,8 @@ function showGroups (groups) {
 
     groupRows.forEach(item => {
         item.addEventListener('click', ev => {
+            selectedGroup = []
+            selectedGroupCopy = []
             showStudents(ev.target.parentNode.id)
         })
     });
@@ -63,7 +65,7 @@ function showGroups (groups) {
 }
 
 function showStudents (group) {
-    let selectedGroup = []
+    
     localData.forEach(value => {
         if (value.groupsub_key === group) {
             selectedGroup.push(value)
@@ -73,7 +75,7 @@ function showStudents (group) {
     let groupTitle = document.getElementById('group_title')
     groupTitle.innerHTML = group;
     
-    let studentsTable = document.getElementById('students_table');
+    
     studentsTable.innerHTML = `
         <th>Student<br/> Id</th>
         <th>First<br/> Name</th>
@@ -85,8 +87,11 @@ function showStudents (group) {
         <th>Average</th>
         <th>Actions</th>
     `
-    selectedGroup.forEach( (value, key) => {
-        let studentMarkup = `
+    selectedGroupCopy = [...selectedGroup]
+
+    selectedGroupCopy.forEach( (value, key) => {
+        if (studentsTable.childElementCount < 21) {
+            let studentMarkup = `
         <tr>
             <td>${value.id}</td>
             <td>${value.first_name}</td>
@@ -108,9 +113,69 @@ function showStudents (group) {
         student.setAttribute('class', 'student')
         student.innerHTML += studentMarkup;
         studentsTable.appendChild(student)
+        
+        selectedGroupCopy.shift()
+        }
+ 
     })
+
 }
 
+const footer = document.getElementById('table_footer');
+const studentsTable = document.getElementById('students_table');
+const studentsCard = document.getElementById('details');
+let selectedGroup = []
+let selectedGroupCopy = []
+
+window.addEventListener('scroll', (ev) => {
+    if ((window.innerHeight + window.scrollY) >= studentsCard.clientHeight) {
+       addMoreStudents();
+    }
+
+    footer.style.backgroundColor = "var(--blue)";
+
+    setTimeout(function(){
+        footer.style.backgroundColor = "white";
+    }, 1000);
+
+});
+
+function addMoreStudents(){
+    let maxRows;
+    if (selectedGroupCopy.length >= 20) { maxRows = 20 }
+    if (selectedGroupCopy.length <= 20) { maxRows = selectedGroupCopy.length }
+    if (selectedGroupCopy.length > 0) {
+        for (let i = 0; i < maxRows; i++ ) {
+            let value = selectedGroupCopy[0] ;
+            let key = selectedGroupCopy ;
+            let studentMarkup = `
+            <tr>
+                <td>${value.id}</td>
+                <td>${value.first_name}</td>
+                <td>${value.last_name}</td>
+                <td>${value.p1.toFixed(1)}</td>
+                <td>${value.p2.toFixed(1)}</td>
+                <td>${value.p3.toFixed(1)}</td>
+                <td>${value.p4.toFixed(1)}</td>
+                <td>${value.average.toFixed(1)}</td>
+                <td>
+                    <img class="action_icon" src="./assets/edit.svg" alt="Edit icon">
+                    <img class="action_icon" src="./assets/delete.svg" alt="Delete icon">
+                </td>
+            </tr>
+            `
+
+            let student = document.createElement('tr')
+            student.setAttribute('id', key)
+            student.setAttribute('class', 'student')
+            student.innerHTML += studentMarkup;
+            studentsTable.appendChild(student)
+            
+            selectedGroupCopy.shift();
+        }
+    }
+
+}
 
 let localData = {};
 

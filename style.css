@@ -166,3 +166,10 @@ tr:first-child:hover {
 #details{
     width: 70%;
 }
+
+#table_footer {
+  width: 100%;
+  text-align: center;
+  background: white;
+  color: white;
+}
